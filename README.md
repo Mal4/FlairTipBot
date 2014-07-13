@@ -1,15 +1,6 @@
 # Flair Tip Bot
 Flair Tip Bot is a bot that saves the balance of a user in the flair of the specified subreddit.
 
-            '+accept'   : re.compile(r'\+accept', re.I), 
-            '[request]' : re.compile(r'\[R\] ?\[[^\d]?(\d+)\]', re.I),
-            '[offer]'   : re.compile(r'\[O\] ?\[[^\d]?(\d+)\]', re.I),
-            '+reddittip': re.compile(r'\+redditpointtrade (\d+)', re.I),
-            'pm_tip'    : re.compile(r'\+redditpointtrade ([a-z0-9_-]{3,}) [^\d]?(\d+)', re.I),
-            'pm_join'   : re.compile(r'\+join (/r/)?([a-z0-9_-]{3,})', re.I),
-            'pm_leave'  : re.compile(r'\+leave (/r/)?([a-z0-9_-]{3,})', re.I),
-            'pm_balance': re.compile(r'(\+balance)', re.I)
-
 ## Commands
 Below are the commands the Flair Tip Bot understands.
 
