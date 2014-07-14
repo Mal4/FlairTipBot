@@ -10,17 +10,20 @@ class FlairTipBot(Bot):
 
     # Check the latest hot submissions in subreddit
     def check_submissions(self, subreddit):
+        logging.debug('Checking submissions')
         subreddit = self.reddit.get_subreddit(subreddit)
         for submission in subreddit.get_hot(limit=30):
             submission.replace_more_comments(limit=None, threshold=0)
             comments = praw.helpers.flatten_tree(submission.comments)
             for comment in comments:
+                logging.debug(comment.body)
                 if not Comment.is_parsed(comment.id) and comment.author:
                     self.check_triggers(comment, subreddit)
                     Comment.add(comment.id, self.db.session)
         self.idle_count += 1
 
     def check_messages(self):
+        logging.debug('Checking Messages')
         messages = self.reddit.get_unread()
         for message in messages:
             self.check_pm_triggers(message)
@@ -30,7 +33,7 @@ class FlairTipBot(Bot):
     # Set certain parameters and variables for the bot
     def set_configurables(self):
         Bot.set_configurables(self)
-        self.owner = self.reddit.get_redditor('FlockOnFire')
+        self.owner = self.reddit.get_redditor('Malz_')
         self.currency = 'R'
         self.reply_footer = """ 
 ^([[help]](http://www.reddit.com/r/RedditPointTrade/))
@@ -41,7 +44,7 @@ class FlairTipBot(Bot):
         self.karma_minimum = 100
         self.triggers = {
             '+accept'   : re.compile(r'\+accept', re.I), 
-            '[request]' : re.compile(r'\[R\] ?\[[^\d]?(\d+)\]', re.I),
+            '[request]' : re.compile(r'\[R\] ?\[[^\d]?([\d,]+)\]', re.I),
             '[offer]'   : re.compile(r'\[O\] ?\[[^\d]?(\d+)\]', re.I),
             '+reddittip': re.compile(r'\+redditpointtrade (\d+)', re.I),
             'pm_tip'    : re.compile(r'\+redditpointtrade ([a-z0-9_-]{3,}) [^\d]?(\d+)', re.I),
@@ -193,15 +196,17 @@ class FlairTipBot(Bot):
 
     def get_price(self, submission=None, match=None):
         if match:
-            return match.group(1)
+            result =  match.group(1)
         else:
             request = self.triggers['[request]'].search(submission.title)
             offer = self.triggers['[offer]'].search(submission.title)
             if request:
-                return int(request.group(1))
+                result = request.group(1)
             elif offer:
-                return int(offer.group(1))
-            return None
+                result = offer.group(1)
+            else:
+                return None
+        return int(result.replace(',',''))
 
     def get_type(self, submission):
         request = self.triggers['[request]'].search(submission.title)
