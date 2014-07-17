@@ -1,42 +1,20 @@
 import re, praw, logging, requests
 from Bot import Bot, Comment, Database
 
-db = Database()
-
 class FlairTipBot(Bot):
-    def run(self):
-        while True:
-            self.loop()
-
-    # Check the latest hot submissions in subreddit
-    def check_submissions(self, subreddit):
-        logging.debug('Checking submissions')
-        subreddit = self.reddit.get_subreddit(subreddit)
-        for submission in subreddit.get_hot(limit=30):
-            submission.replace_more_comments(limit=None, threshold=0)
-            comments = praw.helpers.flatten_tree(submission.comments)
-            for comment in comments:
-                logging.debug(comment.body)
-                if not Comment.is_parsed(comment.id) and comment.author:
-                    self.check_triggers(comment, subreddit)
-                    Comment.add(comment.id, self.db.session)
-        self.idle_count += 1
-
-    def check_messages(self):
-        logging.debug('Checking Messages')
-        messages = self.reddit.get_unread()
-        for message in messages:
-            self.check_pm_triggers(message)
-            message.mark_as_read()
-        pass
 
     # Set certain parameters and variables for the bot
     def set_configurables(self):
         Bot.set_configurables(self)
+
+        self.refresh_rate = 0
+        self.refresh_cap  = 0
+        self.sub_from_subscriptions = True
+
         self.owner = self.reddit.get_redditor('Malz_')
         self.currency = 'R'
         self.reply_footer = """ 
-^([[help]](http://www.reddit.com/r/RedditPointTrade/))
+[^([help])](http://www.reddit.com/r/RedditPointTrade/)
 \n___\n
 ^(\'Spend\' your Reddits at /r/RedditPointTrade)
         """
@@ -52,7 +30,6 @@ class FlairTipBot(Bot):
             'pm_leave'  : re.compile(r'\+leave (/r/)?([a-z0-9_-]{3,})', re.I),
             'pm_balance': re.compile(r'(\+balance)', re.I)
         }
-        self.sub_from_subscriptions = True
         self.home = self.reddit.get_subreddit('RedditPointTrade')
         # self.subreddits = [sub.display_name for sub in self.reddit.get_my_subreddits()]
         
@@ -68,17 +45,40 @@ class FlairTipBot(Bot):
         }
         self.flair_css = 'balance'
 
+    def run(self):
+        while True:
+            self.loop()
+
+    def check_comments(self, subreddit):
+        comments = self.reddit.get_comments(subreddit, limit=200)
+        for comment in comments:
+                if not Comment.is_parsed(comment.id) and comment.author:
+                    self.check_triggers(comment, subreddit)
+                    Comment.add(comment.id, self.db.session)
+        self.idle_count += 1
+
+    def check_messages(self):
+        logging.debug('Checking Messages')
+        messages = self.reddit.get_unread()
+        for message in messages:
+            self.check_pm_triggers(message)
+            message.mark_as_read()
+        pass
+
     # Check comment for triggers
     def check_triggers(self, comment, subreddit):
-        is_new  = self.new_user(comment.author)
+        if subreddit == self.home:
+            is_new  = self.new_user(comment.author)
+        else:
+            is_new = False
         accept  = self.triggers['+accept'].search(comment.body) 
         tip     = self.triggers['+reddittip'].search(comment.body)
 
         reply = ''
-        if is_new and subreddit == self.home:
+        if is_new:
             reply += is_new
-        if accept:
-            reply += self.accept(comment)
+        if accept and comment.submission.subreddit == self.home:
+                reply += self.accept(comment)
         if tip:
             reply += self.tip_user(tip.group(1), comment)
 
@@ -88,7 +88,6 @@ class FlairTipBot(Bot):
             self.idle_count = 0
 
     def check_pm_triggers(self, message):
-        print(message.body)
         tip   = self.triggers['pm_tip'].search(message.body)
         join  = self.triggers['pm_join'].search(message.body)
         leave = self.triggers['pm_leave'].search(message.body)
@@ -221,5 +220,6 @@ class FlairTipBot(Bot):
     def get_parent(self, comment):
         return self.reddit.get_info(thing_id=comment.parent_id)
 
+db = Database()
 bot = FlairTipBot('Point Trade Tip Bot by /u/FlockOnFire and /u/malz_', 'bot.log', from_file='login.cred', database=db)
-bot.run()
+# bot.run()
