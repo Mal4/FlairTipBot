@@ -3,7 +3,7 @@ import praw, time, logging, requests, sys, math
 
 class Bot:
     def __init__(self, name, log_file, username = None, password = None, from_file = None, database = None):
-        logging.basicConfig(filename=log_file, level=logging.DEBUG)
+        logging.basicConfig(filename=log_file, level=logging.INFO)
         logging.getLogger().addHandler(logging.StreamHandler())
 
         self.name = name
@@ -80,7 +80,6 @@ class Bot:
         x     = min(180, n * speed)
         angle = math.radians(x)
         y     = (-math.cos(x) * (y_max - y_min) / 2) + (y_max + y_min) / 2
-        print(y)
         return int(y)
 
     @staticmethod
