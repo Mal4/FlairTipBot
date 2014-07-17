@@ -222,4 +222,4 @@ class FlairTipBot(Bot):
 
 db = Database()
 bot = FlairTipBot('Point Trade Tip Bot by /u/FlockOnFire and /u/malz_', 'bot.log', from_file='login.cred', database=db)
-# bot.run()
+bot.run()
