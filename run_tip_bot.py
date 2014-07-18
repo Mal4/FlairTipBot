@@ -14,7 +14,7 @@ class FlairTipBot(Bot):
         self.owner = self.reddit.get_redditor('Malz_')
         self.currency = 'Ɍ'
         self.reply_footer = """ 
-[^([help])](http://www.reddit.com/r/RedditPointTrade/wiki/about#wiki_bot)
+[^([help])](http://www.reddit.com/r/RedditPointTrade/wiki/about)
 \n___\n
 ^(\'Spend\' your Reddits at /r/RedditPointTrade)
         """
@@ -37,7 +37,7 @@ class FlairTipBot(Bot):
             'verified'    : '\n\n^(**[Verified]** /u/{0} -> /u/{1} {2}{3}.00)',
             'accepted'    : '\n\n^(**[Verified]** /u/{0} -> /u/{1} {2}{3}.00)',
             'failed'      : '\n\n^(**[Failed]** /u/{0} -/-> /u/{1} {2}{3}.00)',
-            'welcome_gift': '\n\n^(**Welcome /u/{0},**\n\n To get you started you have received {1}{2}.00!)',
+            'welcome_gift': '\n\n^(**Welcome /u/{0},**\n\n To get you started you have received {1}{2}.00! [[help]](http://www.reddit.com/r/RedditPointTrade/wiki/about))',
             'pm_tip'      : '[RPT] Private Transaction',
             'pm_join'     : 'RedditPointTrade Bot joined your subreddit. For more info check /r/{0} or contact /u/{1}'.format(str(self.home), str(self.owner)),
             'pm_leave'    : 'RedditPointTrade Bot has left your subreddit.',
