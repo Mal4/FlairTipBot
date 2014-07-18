@@ -12,9 +12,9 @@ class FlairTipBot(Bot):
         self.sub_from_subscriptions = True
 
         self.owner = self.reddit.get_redditor('Malz_')
-        self.currency = 'R'
+        self.currency = 'Ɍ'
         self.reply_footer = """ 
-[^([help])](http://www.reddit.com/r/RedditPointTrade/)
+[^([help])](http://www.reddit.com/r/RedditPointTrade/wiki/about#wiki_bot)
 \n___\n
 ^(\'Spend\' your Reddits at /r/RedditPointTrade)
         """
@@ -96,6 +96,7 @@ class FlairTipBot(Bot):
         if tip:
             reply = self.tip_user(tip.group(2), user_from = message.author, user_to = tip.group(1))
             message.reply(reply)
+            reply += ' [^(help)](http://www.reddit.com/r/RedditPointTrade/wiki/about#wiki_bot)'
             self.reddit.send_message(tip.group(1), self.messages['pm_tip'], reply)
         elif balance:
             flair = self.flair_to_int(user=message.author)
